@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width,
+                   initial-scale=1.0,
+                   maximum-scale=1.0,
+                   user-scalable=no">
+
+    <meta name="theme-color" content="#050812">
+
+    <title>Nitron Racing</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Map library -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+</head>
+
+<body>
+
+<!-- =========================================================
+     STARTUP SCREEN
+========================================================= -->
+
+<div id="splashScreen" class="splash">
+
+    <div class="splash-grid"></div>
+
+    <div class="speed-lines">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="splash-logo">
+
+        <div class="logo-mark">
+            N
+        </div>
+
+        <div class="logo-main">
+            NITRON
+        </div>
+
+        <div class="logo-sub">
+            RACING
+        </div>
+
+        <div class="logo-line"></div>
+
+        <div class="logo-tag">
+            GPS TELEMETRY SYSTEM
+        </div>
+
+    </div>
+
+    <div class="boot-system">
+
+        <div class="boot-row">
+            <span>GPS SYSTEM</span>
+            <b id="bootGPS">WAIT</b>
+        </div>
+
+        <div class="boot-row">
+            <span>TELEMETRY</span>
+            <b id="bootTelemetry">WAIT</b>
+        </div>
+
+        <div class="boot-row">
+            <span>RACE ENGINE</span>
+            <b id="bootRace">WAIT</b>
+        </div>
+
+        <div class="boot-row">
+            <span>DATA SYSTEM</span>
+            <b id="bootData">WAIT</b>
+        </div>
+
+    </div>
+
+    <div class="loading-container">
+
+        <div class="loading-bar">
+            <div id="loadingProgress"></div>
+        </div>
+
+        <div id="loadingText">
+            INITIALIZING...
+        </div>
+
+    </div>
+
+    <button id="skipIntro" class="skip-button">
+        SKIP INTRO
+    </button>
+
+</div>
+
+
+<!-- =========================================================
+     APP
+========================================================= -->
+
+<div id="app" class="app hidden">
+
+    <!-- =====================================================
+         TOP BAR
+    ====================================================== -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-symbol">
+                N
+            </div>
+
+            <div>
+                <div class="brand-name">
+                    NITRON
+                </div>
+
+                <div class="brand-racing">
+                    RACING
+                </div>
+            </div>
+
+        </div>
+
+        <div class="top-status">
+
+            <div id="gpsTopStatus" class="status-pill">
+                <i></i>
+                GPS WAITING
+            </div>
+
+            <button id="fullscreenBtn" class="icon-button">
+                ⛶
+            </button>
+
+            <button id="settingsBtn" class="icon-button">
+                ⚙
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ====================================================== -->
+
+    <nav class="main-nav">
+
+        <button class="nav-btn active" data-page="home">
+            <span>⌂</span>
+            HOME
+        </button>
+
+        <button class="nav-btn" data-page="race">
+            <span>🏁</span>
+            RACE
+        </button>
+
+        <button class="nav-btn" data-page="map">
+            <span>⌖</span>
+            MAP
+        </button>
+
+        <button class="nav-btn" data-page="history">
+            <span>▣</span>
+            HISTORY
+        </button>
+
+        <button class="nav-btn" data-page="garage">
+            <span>🏍</span>
+            GARAGE
+        </button>
+
+    </nav>
+
+
+    <!-- =====================================================
+         HOME PAGE
+    ====================================================== -->
+
+    <main id="homePage" class="page active-page">
+
+        <section class="dashboard-grid">
+
+            <!-- SPEED -->
+            <div class="panel speed-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            LIVE TELEMETRY
+                        </span>
+
+                        <h2>
+                            SPEED
+                        </h2>
+                    </div>
+
+                    <div id="rideStatus" class="ride-badge">
+                        READY
+                    </div>
+
+                </div>
+
+
+                <div class="speedometer">
+
+                    <div class="speed-ring ring-one"></div>
+                    <div class="speed-ring ring-two"></div>
+                    <div class="speed-ring ring-three"></div>
+
+                    <div class="speed-ticks"></div>
+
+                    <div class="red-zone"></div>
+
+                    <div id="speedNeedle" class="speed-needle">
+                        <div></div>
+                    </div>
+
+                    <div class="needle-center"></div>
+
+                    <div class="speed-digital">
+
+                        <strong id="speedValue">
+                            0
+                        </strong>
+
+                        <span id="speedUnit">
+                            KM/H
+                        </span>
+
+                    </div>
+
+                    <div class="speed-min">
+                        0
+                    </div>
+
+                    <div class="speed-max">
+                        240
+                    </div>
+
+                </div>
+
+
+                <div class="speed-state">
+
+                    <span id="speedState">
+                        STATIONARY
+                    </span>
+
+                    <span id="accelValue">
+                        +0.00 G
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUICK STATS -->
+            <div class="panel stats-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            RIDE COMPUTER
+                        </span>
+
+                        <h2>
+                            PERFORMANCE
+                        </h2>
+                    </div>
+
+                </div>
+
+                <div class="stat-grid">
+
+                    <div class="stat-card">
+                        <span>MAX SPEED</span>
+                        <strong id="maxSpeed">0</strong>
+                        <small class="unit-label">KM/H</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>AVG SPEED</span>
+                        <strong id="avgSpeed">0</strong>
+                        <small class="unit-label">KM/H</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>DISTANCE</span>
+                        <strong id="distanceValue">0.00</strong>
+                        <small>KM</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>RIDE TIME</span>
+                        <strong id="rideTime">00:00</strong>
+                        <small>TIME</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>MOVING</span>
+                        <strong id="movingTime">00:00</strong>
+                        <small>TIME</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>STOPPED</span>
+                        <strong id="stoppedTime">00:00</strong>
+                        <small>TIME</small>
+                    </div>
+
+                </div>
+
+
+                <div class="control-row">
+
+                    <button id="startRideBtn" class="primary-btn">
+                        ▶ START RIDE
+                    </button>
+
+                    <button id="pauseRideBtn" class="secondary-btn">
+                        ❚❚ PAUSE
+                    </button>
+
+                    <button id="finishRideBtn" class="secondary-btn">
+                        ■ FINISH
+                    </button>
+
+                    <button id="resetRideBtn" class="danger-btn">
+                        RESET
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- GPS -->
+            <div class="panel telemetry-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            POSITION SYSTEM
+                        </span>
+
+                        <h2>
+                            GPS TELEMETRY
+                        </h2>
+                    </div>
+
+                    <div id="gpsQualityBadge"
+                         class="quality-badge">
+                        NO SIGNAL
+                    </div>
+
+                </div>
+
+
+                <div class="telemetry-grid">
+
+                    <div class="telemetry-item">
+                        <span>LATITUDE</span>
+                        <strong id="latitude">--</strong>
+                    </div>
+
+                    <div class="telemetry-item">
+                        <span>LONGITUDE</span>
+                        <strong id="longitude">--</strong>
+                    </div>
+
+                    <div class="telemetry-item">
+                        <span>ALTITUDE</span>
+                        <strong id="altitude">-- m</strong>
+                    </div>
+
+                    <div class="telemetry-item">
+                        <span>ACCURACY</span>
+                        <strong id="accuracy">-- m</strong>
+                    </div>
+
+                    <div class="telemetry-item">
+                        <span>HEADING</span>
+                        <strong id="heading">--°</strong>
+                    </div>
+
+                    <div class="telemetry-item">
+                        <span>GPS SPEED</span>
+                        <strong id="gpsSpeed">--</strong>
+                    </div>
+
+                    <div class="telemetry-item">
+                        <span>GPS UPDATES</span>
+                        <strong id="gpsUpdates">0</strong>
+                    </div>
+
+                    <div class="telemetry-item">
+                        <span>SIGNAL AGE</span>
+                        <strong id="signalAge">--</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- GRAPH -->
+            <div class="panel graph-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            LIVE DATA
+                        </span>
+
+                        <h2>
+                            TELEMETRY GRAPH
+                        </h2>
+                    </div>
+
+                    <div class="graph-buttons">
+
+                        <button class="graph-btn active"
+                                data-graph="speed">
+                            SPEED
+                        </button>
+
+                        <button class="graph-btn"
+                                data-graph="accel">
+                            ACCEL
+                        </button>
+
+                        <button class="graph-btn"
+                                data-graph="altitude">
+                            ALT
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <canvas id="telemetryCanvas"></canvas>
+
+            </div>
+
+
+            <!-- PERFORMANCE -->
+            <div class="panel performance-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            PERFORMANCE TEST
+                        </span>
+
+                        <h2>
+                            ACCELERATION
+                        </h2>
+                    </div>
+
+                </div>
+
+                <div class="test-grid">
+
+                    <div>
+                        <span>0 → 30</span>
+                        <strong id="time30">--</strong>
+                    </div>
+
+                    <div>
+                        <span>0 → 60</span>
+                        <strong id="time60">--</strong>
+                    </div>
+
+                    <div>
+                        <span>0 → 80</span>
+                        <strong id="time80">--</strong>
+                    </div>
+
+                    <div>
+                        <span>0 → 100</span>
+                        <strong id="time100">--</strong>
+                    </div>
+
+                </div>
+
+                <button id="resetTestsBtn"
+                        class="secondary-btn full-btn">
+                    RESET TESTS
+                </button>
+
+            </div>
+
+
+            <!-- SYSTEM -->
+            <div class="panel system-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            DEVICE
+                        </span>
+
+                        <h2>
+                            SYSTEM STATUS
+                        </h2>
+                    </div>
+
+                </div>
+
+                <div class="system-list">
+
+                    <div>
+                        <span>GPS</span>
+                        <b id="systemGPS">WAITING</b>
+                    </div>
+
+                    <div>
+                        <span>STORAGE</span>
+                        <b>READY</b>
+                    </div>
+
+                    <div>
+                        <span>WAKE LOCK</span>
+                        <b id="systemWake">OFF</b>
+                    </div>
+
+                    <div>
+                        <span>AUDIO</span>
+                        <b id="systemAudio">OFF</b>
+                    </div>
+
+                    <div>
+                        <span>VIBRATION</span>
+                        <b id="systemVibration">READY</b>
+                    </div>
+
+                    <div>
+                        <span>MODE</span>
+                        <b id="systemMode">GPS</b>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         RACE PAGE
+    ====================================================== -->
+
+    <main id="racePage" class="page">
+
+        <section class="race-layout">
+
+            <div class="panel race-main">
+
+                <div class="race-title">
+                    <span class="eyebrow">
+                        PERFORMANCE LAB
+                    </span>
+
+                    <h1>
+                        RACE MODE
+                    </h1>
+
+                    <p>
+                        Acceleration testing and timed runs
+                    </p>
+                </div>
+
+                <div id="raceCountdown"
+                     class="race-countdown">
+                    READY
+                </div>
+
+                <div id="raceSpeed"
+                     class="race-speed">
+                    0
+                </div>
+
+                <div id="raceUnit"
+                     class="race-unit">
+                    KM/H
+                </div>
+
+                <button id="raceStartBtn"
+                        class="race-start">
+                    🏁 START RACE
+                </button>
+
+            </div>
+
+
+            <div class="panel race-data">
+
+                <div class="panel-header">
+                    <div>
+                        <span class="eyebrow">
+                            LIVE TEST
+                        </span>
+                        <h2>RUN DATA</h2>
+                    </div>
+                </div>
+
+                <div class="race-data-grid">
+
+                    <div>
+                        <span>0–30</span>
+                        <strong id="race30">--</strong>
+                    </div>
+
+                    <div>
+                        <span>0–60</span>
+                        <strong id="race60">--</strong>
+                    </div>
+
+                    <div>
+                        <span>0–80</span>
+                        <strong id="race80">--</strong>
+                    </div>
+
+                    <div>
+                        <span>0–100</span>
+                        <strong id="race100">--</strong>
+                    </div>
+
+                    <div>
+                        <span>MAX</span>
+                        <strong id="raceMax">0</strong>
+                    </div>
+
+                    <div>
+                        <span>DISTANCE</span>
+                        <strong id="raceDistance">0 m</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         MAP PAGE
+    ====================================================== -->
+
+    <main id="mapPage" class="page">
+
+        <section class="map-layout">
+
+            <div class="panel map-panel">
+
+                <div id="map"></div>
+
+                <div class="map-overlay">
+
+                    <div class="map-stat">
+                        <span>SPEED</span>
+                        <strong id="mapSpeed">0</strong>
+                        <small>KM/H</small>
+                    </div>
+
+                    <div class="map-stat">
+                        <span>DISTANCE</span>
+                        <strong id="mapDistance">0.00</strong>
+                        <small>KM</small>
+                    </div>
+
+                    <button id="centerMapBtn"
+                            class="map-control">
+                        ◎
+                    </button>
+
+                    <button id="markWaypointBtn"
+                            class="map-control">
+                        📍
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="panel route-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            ROUTE SYSTEM
+                        </span>
+
+                        <h2>
+                            RIDE ROUTE
+                        </h2>
+                    </div>
+
+                </div>
+
+                <div class="route-stats">
+
+                    <div>
+                        <span>POINTS</span>
+                        <strong id="routePoints">0</strong>
+                    </div>
+
+                    <div>
+                        <span>DISTANCE</span>
+                        <strong id="routeDistance">0.00 km</strong>
+                    </div>
+
+                    <div>
+                        <span>WAYPOINTS</span>
+                        <strong id="waypointCount">0</strong>
+                    </div>
+
+                </div>
+
+                <button id="clearRouteBtn"
+                        class="danger-btn full-btn">
+                    CLEAR ROUTE
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         HISTORY PAGE
+    ====================================================== -->
+
+    <main id="historyPage" class="page">
+
+        <section class="history-layout">
+
+            <div class="panel records-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            PERSONAL DATA
+                        </span>
+
+                        <h2>
+                            RECORDS
+                        </h2>
+                    </div>
+
+                </div>
+
+                <div class="records-grid">
+
+                    <div>
+                        <span>TOP SPEED</span>
+                        <strong id="recordTopSpeed">0</strong>
+                        <small>KM/H</small>
+                    </div>
+
+                    <div>
+                        <span>BEST 0–60</span>
+                        <strong id="record60">--</strong>
+                        <small>SEC</small>
+                    </div>
+
+                    <div>
+                        <span>BEST 0–100</span>
+                        <strong id="record100">--</strong>
+                        <small>SEC</small>
+                    </div>
+
+                    <div>
+                        <span>TOTAL DISTANCE</span>
+                        <strong id="recordDistance">0</strong>
+                        <small>KM</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel history-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            SAVED SESSIONS
+                        </span>
+
+                        <h2>
+                            RIDE HISTORY
+                        </h2>
+                    </div>
+
+                    <div class="history-actions">
+
+                        <button id="exportAllBtn"
+                                class="secondary-btn">
+                            EXPORT
+                        </button>
+
+                        <button id="clearHistoryBtn"
+                                class="danger-btn">
+                            CLEAR ALL
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div id="historyList"
+                     class="history-list">
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         GARAGE PAGE
+    ====================================================== -->
+
+    <main id="garagePage" class="page">
+
+        <section class="garage-layout">
+
+            <div class="panel vehicle-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            MOTORCYCLE
+                        </span>
+
+                        <h2>
+                            MY GARAGE
+                        </h2>
+                    </div>
+
+                    <button id="addVehicleBtn"
+                            class="secondary-btn">
+                        + ADD
+                    </button>
+
+                </div>
+
+                <div id="vehicleList"
+                     class="vehicle-list">
+                </div>
+
+            </div>
+
+
+            <div class="panel maintenance-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            SERVICE
+                        </span>
+
+                        <h2>
+                            MAINTENANCE
+                        </h2>
+                    </div>
+
+                    <button id="addMaintenanceBtn"
+                            class="secondary-btn">
+                        + ADD
+                    </button>
+
+                </div>
+
+                <div id="maintenanceList"
+                     class="maintenance-list">
+                </div>
+
+            </div>
+
+
+            <div class="panel expense-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <span class="eyebrow">
+                            MONEY
+                        </span>
+
+                        <h2>
+                            EXPENSES
+                        </h2>
+                    </div>
+
+                    <button id="addExpenseBtn"
+                            class="secondary-btn">
+                        + ADD
+                    </button>
+
+                </div>
+
+                <div id="expenseList"
+                     class="expense-list">
+                </div>
+
+                <div class="expense-total">
+                    TOTAL
+                    <strong id="expenseTotal">
+                        ₱0.00
+                    </strong>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         BOTTOM CONTROLS
+    ====================================================== -->
+
+    <div class="floating-controls">
+
+        <button id="wakeLockBtn">
+            ☀ KEEP SCREEN ON
+        </button>
+
+        <button id="soundBtn">
+            🔊 SOUND
+        </button>
+
+        <button id="demoBtn">
+            ◉ DEMO
+        </button>
+
+        <button id="emergencyBtn">
+            ⚠ LOCATION
+        </button>
+
+    </div>
+
+
+    <!-- =====================================================
+         SETTINGS MODAL
+    ====================================================== -->
+
+    <div id="settingsModal"
+         class="modal hidden">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <div>
+                    <span class="eyebrow">
+                        NITRON CONFIGURATION
+                    </span>
+
+                    <h2>
+                        SETTINGS
+                    </h2>
+                </div>
+
+                <button class="close-modal"
+                        data-close="settingsModal">
+                    ×
+                </button>
+
+            </div>
+
+
+            <div class="settings-list">
+
+                <label>
+                    <span>UNIT</span>
+
+                    <select id="unitSelect">
+                        <option value="kmh">
+                            KM/H
+                        </option>
+                        <option value="mph">
+                            MPH
+                        </option>
+                    </select>
+                </label>
+
+
+                <label>
+                    <span>SPEED WARNING</span>
+
+                    <input id="warningSpeed"
+                           type="number"
+                           min="10"
+                           max="240"
+                           value="100">
+                </label>
+
+
+                <label>
+                    <span>CRITICAL SPEED</span>
+
+                    <input id="criticalSpeed"
+                           type="number"
+                           min="10"
+                           max="240"
+                           value="120">
+                </label>
+
+
+                <label>
+                    <span>AUTO CENTER MAP</span>
+
+                    <input id="autoCenter"
+                           type="checkbox"
+                           checked>
+                </label>
+
+
+                <label>
+                    <span>VIBRATION</span>
+
+                    <input id="vibrationEnabled"
+                           type="checkbox"
+                           checked>
+                </label>
+
+
+                <label>
+                    <span>STARTUP ANIMATION</span>
+
+                    <input id="startupEnabled"
+                           type="checkbox"
+                           checked>
+                </label>
+
+            </div>
+
+
+            <div class="settings-footer">
+
+                <button id="backupBtn"
+                        class="secondary-btn">
+                    EXPORT BACKUP
+                </button>
+
+                <button id="restoreBtn"
+                        class="secondary-btn">
+                    IMPORT BACKUP
+                </button>
+
+                <button id="resetSettingsBtn"
+                        class="danger-btn">
+                    RESET SETTINGS
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         EMERGENCY MODAL
+    ====================================================== -->
+
+    <div id="emergencyModal"
+         class="modal hidden">
+
+        <div class="modal-box emergency-box">
+
+            <div class="modal-header">
+
+                <div>
+                    <span class="eyebrow">
+                        LOCATION SYSTEM
+                    </span>
+
+                    <h2>
+                        CURRENT LOCATION
+                    </h2>
+                </div>
+
+                <button class="close-modal"
+                        data-close="emergencyModal">
+                    ×
+                </button>
+
+            </div>
+
+            <div class="emergency-location">
+
+                <div>
+                    <span>LATITUDE</span>
+                    <strong id="emergencyLat">--</strong>
+                </div>
+
+                <div>
+                    <span>LONGITUDE</span>
+                    <strong id="emergencyLon">--</strong>
+                </div>
+
+            </div>
+
+            <div class="emergency-actions">
+
+                <button id="copyLocationBtn"
+                        class="primary-btn">
+                    COPY LOCATION
+                </button>
+
+                <button id="openLocationBtn"
+                        class="secondary-btn">
+                    OPEN MAP
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOTIFICATION
+    ====================================================== -->
+
+    <div id="notification"
+         class="notification">
+
+        <span id="notificationIcon">
+            ✓
+        </span>
+
+        <span id="notificationText">
+            System ready
+        </span>
+
+    </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT LIBRARIES
+    ====================================================== -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
